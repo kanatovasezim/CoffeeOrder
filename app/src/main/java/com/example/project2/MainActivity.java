@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.text.NumberFormat;
 
 public class MainActivity extends AppCompatActivity {
-    int quantity = 2;
+    int quantity = 1;
     int priceCreamTopping = 1;
     int priceChocolateTopping = 2;
     int coffeePrice = 5;
@@ -27,22 +27,30 @@ public class MainActivity extends AppCompatActivity {
     public void submitOrder(View view) {
         CheckBox cream = findViewById(R.id.checkbox_cream);
         CheckBox chocolate = findViewById(R.id.checkbox_chocolate);
-        calculateToppingsPrice(cream.isChecked(), chocolate.isChecked());
         EditText name = findViewById(R.id.name);
+        EditText mail = findViewById(R.id.mail);
         String message = name.getText().toString() + "\n";
         message += "Add whipped cream : " + cream.isChecked() + "\n";
         message += "Add chocolate : " + chocolate.isChecked() + "\n";
         message += "Quantity: " + quantity + "\n";
-        message += "Total price: " + NumberFormat.getCurrencyInstance().format(totalPrice) + "\n";
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Subject");
+        message += "Total price: " + NumberFormat.getCurrencyInstance().format(countTotalPrice(cream.isChecked(), chocolate.isChecked(), quantity, coffeePrice)) + "\n";
+        displayMessage(message);
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto",mail.getText().toString(), null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Coffee Check");
         emailIntent.putExtra(Intent.EXTRA_TEXT, message);
-        if (emailIntent.resolveActivity(getPackageManager()) != null) {
-            startActivity(emailIntent);
-        }
+        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+        startActivity(emailIntent);
     }
 
-    private void calculateToppingsPrice(Boolean cream, Boolean chocolate){
+    private void display() {
+        TextView quantityTextView = (TextView) findViewById(
+                R.id.quantity_text_view);
+        quantityTextView.setText("" + quantity);
+    }
+
+    private int countTotalPrice(Boolean cream, Boolean chocolate, Integer quantity, Integer price){
+        totalPrice = quantity*price;
         if (cream && chocolate){
             totalPrice += ((priceChocolateTopping + priceCreamTopping)*quantity);
         } else if (cream){
@@ -50,12 +58,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             totalPrice += (priceChocolateTopping *quantity);
         }
-    }
-
-    private void display() {
-        TextView quantityTextView = (TextView) findViewById(
-                R.id.quantity_text_view);
-        quantityTextView.setText("" + quantity);
+        return  totalPrice;
     }
 
     public void minus(View view) {
