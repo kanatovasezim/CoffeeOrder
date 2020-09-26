@@ -37,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Subject");
         emailIntent.putExtra(Intent.EXTRA_TEXT, message);
-        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+        if (emailIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(emailIntent);
+        }
     }
 
     private void calculateToppingsPrice(Boolean cream, Boolean chocolate){
